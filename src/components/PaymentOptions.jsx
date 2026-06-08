@@ -4,8 +4,6 @@ import React, { useState } from "react";
 // 1. CONSTANTS & CONFIGURATION HELPERS
 // ==========================================
 
-// This map acts as our database for card brand UI themes.
-// It makes adding new card types in the future incredibly easy.
 const CARD_THEMES = {
   VISA: {
     name: "Visa",
@@ -34,7 +32,7 @@ const CARD_THEMES = {
   },
   UNKNOWN: {
     name: "Card",
-    bgClass: "from-slate-850 via-slate-900 to-neutral-950",
+    bgClass: "from-slate-800 via-slate-900 to-slate-950",
     logo: (
       <div className="flex gap-1">
         <div className="w-1.5 h-1.5 rounded-full bg-slate-400/60" />
@@ -45,40 +43,31 @@ const CARD_THEMES = {
   }
 };
 
-/**
- * Detects a credit card network based on its standard prefix numbers.
- */
 const detectCardNetwork = (cardNumber) => {
   const digits = cardNumber.replace(/\s+/g, "");
-  
   if (digits.startsWith("4")) return CARD_THEMES.VISA;
   if (/^(5[1-5]|2[2-7])/.test(digits)) return CARD_THEMES.MASTERCARD;
   if (/^3[47]/.test(digits)) return CARD_THEMES.AMEX;
   if (/^6(011|5)/.test(digits)) return CARD_THEMES.DISCOVER;
-  
   return CARD_THEMES.UNKNOWN;
 };
-
 
 // ==========================================
 // 2. MAIN COMPONENT EXPORT
 // ==========================================
 
 export default function LearnableCheckout() {
-  // Navigation & Transaction States
-  const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Success
+  const [step, setStep] = useState(1); 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentError, setPaymentError] = useState(""); // Captures API/Simulated bank errors
-  const [simulateFailure, setSimulateFailure] = useState(false); // Testing toggle button
+  const [paymentError, setPaymentError] = useState(""); 
+  const [simulateFailure, setSimulateFailure] = useState(false); 
 
-  // Form Field Aggregation
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", address: "",
     cardName: "", cardNumber: "", expiry: "", cvc: ""
   });
 
-  // Calculate the active card details on every render cycle
   const cardType = detectCardNetwork(formData.cardNumber);
 
   // ==========================================
@@ -89,7 +78,6 @@ export default function LearnableCheckout() {
     const { name, value } = e.target;
     let formattedValue = value;
 
-    // Format fields dynamically as the user types
     if (name === "cardNumber") {
       const numbersOnly = value.replace(/\D/g, "");
       formattedValue = numbersOnly.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
@@ -104,7 +92,6 @@ export default function LearnableCheckout() {
 
     setFormData(prev => ({ ...prev, [name]: formattedValue }));
 
-    // Clear validation warnings immediately as the user edits the input field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
@@ -153,15 +140,11 @@ export default function LearnableCheckout() {
     setIsSubmitting(true);
     setPaymentError("");
 
-    // Simulate network server latency (2.0 seconds)
     setTimeout(() => {
       setIsSubmitting(false);
-
       if (simulateFailure) {
-        // Triggers a human-like UI transaction fallback error state
         setPaymentError("Your card was declined. Please check your balance or try a different card.");
       } else {
-        // Safe route to execution confirmation screen
         setStep(3);
       }
     }, 2000);
@@ -171,12 +154,8 @@ export default function LearnableCheckout() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans antialiased">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden grid grid-cols-1 lg:grid-cols-12">
         
-        {/* ==========================================
-            LEFT SIDE: DYNAMIC WORKFLOW CONTAINER
-           ========================================== */}
+        {/* LEFT SIDE: DYNAMIC WORKFLOW CONTAINER */}
         <div className="p-6 sm:p-10 lg:col-span-7 flex flex-col justify-between">
-          
-          {/* Breadcrumb Stepper Navigation */}
           {step < 3 && (
             <nav className="flex items-center gap-3 mb-8 text-xs font-semibold uppercase tracking-wider text-slate-400">
               <span className={step === 1 ? "text-indigo-600 font-bold" : ""}>1. Shipping</span>
@@ -234,7 +213,6 @@ export default function LearnableCheckout() {
                 <p className="text-sm text-slate-500 mt-1">Transactions are completely encrypted and secure.</p>
               </div>
 
-              {/* Dynamic Global Server Processing Errors */}
               {paymentError && (
                 <div className="p-4 bg-red-50 border border-red-100 text-red-700 rounded-xl text-sm font-medium animate-fadeIn">
                   {paymentError}
@@ -296,9 +274,7 @@ export default function LearnableCheckout() {
           )}
         </div>
 
-        {/* ==========================================
-            RIGHT SIDE: HARDWARE CARD PREVIEW & LEDGER
-           ========================================== */}
+        {/* RIGHT SIDE: HARDWARE CARD PREVIEW & LEDGER */}
         <div className="p-6 sm:p-10 lg:col-span-5 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-100 flex flex-col justify-between gap-8">
           
           {/* Card Component Layout Layer */}
@@ -306,11 +282,9 @@ export default function LearnableCheckout() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
             
             <div className="flex justify-between items-center">
-              {/* Internal Smart Chip Vector */}
               <div className="w-8 h-6 bg-amber-400/20 rounded border border-amber-400/30 flex items-center justify-center">
                 <div className="w-4 h-3 bg-amber-400/40 rounded-sm" />
               </div>
-              {/* Dynamic Vector Logo Output */}
               <div className="h-6 flex items-center">{cardType.logo}</div>
             </div>
 
